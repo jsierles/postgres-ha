@@ -1,46 +1,53 @@
-# fly.toml file generated for postgres-ha-example on 2020-12-22T12:44:02-06:00
+# fly.toml file generated for ensayo-db on 2021-04-25T23:59:30+02:00
 
-app = "postgres-ha-example"
+app = "ensayo-db"
 
-# stop accepting new connections while existing sessions complete
 kill_signal = "SIGTERM"
-# allow 5 minutes to cleanly shutdown
 kill_timeout = 300
+services = []
+
+[checks]
+
+  [checks.pg]
+    args = ["pg"]
+    command = "flycheck"
+    grace_period = "30s"
+    interval = "15s"
+    restart_limit = 0
+    timeout = "10s"
+    type = "script"
+
+  [checks.role]
+    args = ["role"]
+    command = "flycheck"
+    grace_period = "30s"
+    interval = "15s"
+    restart_limit = 0
+    timeout = "10s"
+    type = "script"
+
+  [checks.vm]
+    args = ["vm"]
+    command = "flycheck"
+    grace_period = "1s"
+    interval = "1m"
+    restart_limit = 0
+    timeout = "10s"
+    type = "script"
 
 [env]
-PRIMARY_REGION = "ord"
-
-[checks.role]
-type     = "script"
-interval = 60000
-timeout  = 10000
-command  = "flycheck"
-args     = [ "role" ]
-
-[checks.pg]
-type         = "script"
-interval     = 30000
-timeout      = 10000
-grace_period = "10s"
-command      = "flycheck"
-args         = [ "pg" ]
-
-[checks.vm]
-type     = "script"
-interval = 30000
-timeout  = 10000
-command  = "flycheck"
-args     = [ "vm" ]
+  PRIMARY_REGION = "ams"
 
 [experimental]
-private_network = true
-enable_consul   = true
-auto_rollback   = false
+  auto_rollback = false
+  enable_consul = true
+  private_network = true
 
 [metrics]
-port = 9187
-path = "/metrics"
+  path = "/metrics"
+  port = 9187
 
-[mount]
-source      = "pg_data"
-destination = "/data"
+[[mounts]]
+  destination = "/data"
+  encrypted = false
+  source = "pg_data"
